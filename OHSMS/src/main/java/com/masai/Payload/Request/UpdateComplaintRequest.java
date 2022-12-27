@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateComplaintRequest {
 
+	private String complaintId;
+
 	private ComplaintStatus status;
 
 	private String remarks;

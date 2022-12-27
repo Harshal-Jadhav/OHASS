@@ -8,18 +8,16 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.WebUtils;
 
+import com.masai.Exceptions.InvalidCredentialsException;
+import com.masai.Exceptions.RecordsNotFoundException;
 import com.masai.Models.Complaint;
 import com.masai.Models.Employee;
 import com.masai.Models.Users;
 import com.masai.Payload.Request.SignUpRequest;
 import com.masai.Repositories.EmployeeRepo;
 import com.masai.Repositories.UserRepo;
-
-import io.jsonwebtoken.Jwts;
 
 @Service
 public class EmployeeServicesImpl implements EmployeeServices {
@@ -33,14 +31,16 @@ public class EmployeeServicesImpl implements EmployeeServices {
 	@Autowired
 	private ModelMapper mapper;
 
-	@Value("${ohsms.jwt.secretKey}")
-	private String secretKey;
-
-	@Value("${ohsms.jwt.cookieName}")
-	private String cookieName;
+	@Autowired
+	private ServiceHelper helper;
 
 	@Override
-	public Employee registerNewEmployee(SignUpRequest signUpRequest) {
+	public Employee registerNewEmployee(SignUpRequest signUpRequest) throws InvalidCredentialsException {
+
+		Optional<Users> existingUser = userRepo.findByUsername(signUpRequest.getUsername());
+
+		if (existingUser.isPresent())
+			throw new InvalidCredentialsException("User already Exists with this username");
 
 		Users savedUser = userRepo.save(mapper.map(signUpRequest, Users.class));
 
@@ -50,31 +50,33 @@ public class EmployeeServicesImpl implements EmployeeServices {
 	}
 
 	@Override
-	public List<Complaint> getAllComplaints(HttpServletRequest httpServletRequest) {
-		String username = getUserName(httpServletRequest);
+	public List<Complaint> getAllComplaints(HttpServletRequest httpServletRequest) throws RecordsNotFoundException {
+		String username = helper.getUserName(httpServletRequest);
 
 		Optional<Employee> employee = employeeRepo.findByUsername(username);
 
-		return employee.get().getComplaints();
+		List<Complaint> complaints = employee.get().getComplaints();
+		if (complaints.size() == 0)
+			throw new RecordsNotFoundException("No Complaints Found");
+
+		return complaints;
 	}
 
 	@Override
-	public Complaint getComplaintById(HttpServletRequest httpServletRequest, String complaintId) {
-		String username = getUserName(httpServletRequest);
+	public Complaint getComplaintById(HttpServletRequest httpServletRequest, String complaintId)
+			throws RecordsNotFoundException {
+		String username = helper.getUserName(httpServletRequest);
 
 		Optional<Employee> employee = employeeRepo.findByUsername(username);
 
 		List<Complaint> complaint = employee.get().getComplaints().stream().filter(c -> c.getId() == complaintId)
 				.collect(Collectors.toList());
+		if (complaint.size() == 0)
+			throw new RecordsNotFoundException("No Complaints Found");
 
 		return complaint.get(0);
 	}
 
-	protected String getUserName(HttpServletRequest httpServletRequest) {
-		String username = Jwts.parser().setSigningKey(secretKey)
-				.parseClaimsJws((WebUtils.getCookie(httpServletRequest, cookieName)).getValue()).getBody().getSubject();
 
-		return username;
-	}
 
 }
