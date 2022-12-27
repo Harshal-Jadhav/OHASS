@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,8 +30,10 @@ public class Employee {
 
 	private String username;
 
+	@JsonIgnore
 	private String password;
 
 	@OneToMany(mappedBy = "raisedBy")
+	@JsonIgnore
 	private List<Complaint> complaints = new ArrayList<>();
 }
