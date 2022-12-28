@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.masai.Enums.ComplaintStatus;
 import com.masai.Exceptions.InvalidCredentialsException;
@@ -23,6 +24,7 @@ import com.masai.Repositories.EmployeeRepo;
 import com.masai.Repositories.EngineerRepo;
 import com.masai.Repositories.UserRepo;
 
+@Service
 public class AdminServicesImpl implements AdminServices {
 
 	@Autowired
