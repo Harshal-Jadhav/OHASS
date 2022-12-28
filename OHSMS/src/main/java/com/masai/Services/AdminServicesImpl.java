@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.masai.Enums.ComplaintStatus;
 import com.masai.Exceptions.InvalidCredentialsException;
@@ -42,6 +43,9 @@ public class AdminServicesImpl implements AdminServices {
 	@Autowired
 	private ModelMapper mapper;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public Admin registerNewAdmin(SignUpRequest signUpRequest) throws InvalidCredentialsException {
 		Optional<Users> existingUser = userRepo.findByUsername(signUpRequest.getUsername());
@@ -49,7 +53,10 @@ public class AdminServicesImpl implements AdminServices {
 		if (existingUser.isPresent())
 			throw new InvalidCredentialsException("User already Exists with this username");
 
-		Users savedUser = userRepo.save(mapper.map(signUpRequest, Users.class));
+		Users user = mapper.map(signUpRequest, Users.class);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+		Users savedUser = userRepo.save(user);
 
 		Admin savedAdmin = adminRepo.save(mapper.map(savedUser, Admin.class));
 

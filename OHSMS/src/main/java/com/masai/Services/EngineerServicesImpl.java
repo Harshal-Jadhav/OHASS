@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.masai.Enums.ComplaintStatus;
 import com.masai.Exceptions.InvalidCredentialsException;
@@ -39,6 +40,9 @@ public class EngineerServicesImpl implements EngineerServices {
 	@Autowired
 	private ServiceHelper helper;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public Engineer registerNewEngineer(SignUpRequest signUpRequest) throws InvalidCredentialsException {
 
@@ -47,7 +51,10 @@ public class EngineerServicesImpl implements EngineerServices {
 		if (existingUser.isPresent())
 			throw new InvalidCredentialsException("User already Exists with this username");
 
-		Users savedUser = userRepo.save(mapper.map(signUpRequest, Users.class));
+		Users user = mapper.map(signUpRequest, Users.class);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+		Users savedUser = userRepo.save(user);
 
 		Engineer savedEngineer = engineerRepo.save(mapper.map(savedUser, Engineer.class));
 

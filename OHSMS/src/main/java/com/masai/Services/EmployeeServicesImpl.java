@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.masai.Exceptions.InvalidCredentialsException;
@@ -15,9 +16,13 @@ import com.masai.Exceptions.RecordsNotFoundException;
 import com.masai.Models.Complaint;
 import com.masai.Models.Employee;
 import com.masai.Models.Users;
+import com.masai.Payload.Request.NewComplaintRequest;
 import com.masai.Payload.Request.SignUpRequest;
+import com.masai.Repositories.ComplaintRepo;
 import com.masai.Repositories.EmployeeRepo;
 import com.masai.Repositories.UserRepo;
+
+import net.bytebuddy.utility.RandomString;
 
 @Service
 public class EmployeeServicesImpl implements EmployeeServices {
@@ -34,6 +39,13 @@ public class EmployeeServicesImpl implements EmployeeServices {
 	@Autowired
 	private ServiceHelper helper;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private ComplaintRepo complaintRepo;
+
+
 	@Override
 	public Employee registerNewEmployee(SignUpRequest signUpRequest) throws InvalidCredentialsException {
 
@@ -42,7 +54,10 @@ public class EmployeeServicesImpl implements EmployeeServices {
 		if (existingUser.isPresent())
 			throw new InvalidCredentialsException("User already Exists with this username");
 
-		Users savedUser = userRepo.save(mapper.map(signUpRequest, Users.class));
+		Users user = mapper.map(signUpRequest, Users.class);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+		Users savedUser = userRepo.save(user);
 
 		Employee savedEmployee = employeeRepo.save(mapper.map(savedUser, Employee.class));
 
@@ -77,6 +92,22 @@ public class EmployeeServicesImpl implements EmployeeServices {
 		return complaint.get(0);
 	}
 
+	@Override
+	public Complaint raiseNewComplaint(HttpServletRequest httpServletRequest, NewComplaintRequest complaintRequest) {
+		String username = helper.getUserName(httpServletRequest);
+
+		Optional<Employee> employee = employeeRepo.findByUsername(username);
+
+		Complaint newComplaint = mapper.map(complaintRequest, Complaint.class);
+
+		String UUID = RandomString.make(6) + "$" + employee.get().getId();
+
+		newComplaint.setId(UUID);
+		newComplaint.setRaisedBy(employee.get());
+
+		Complaint savedComplaint = complaintRepo.save(newComplaint);
+		return savedComplaint;
+	}
 
 
 }
