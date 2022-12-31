@@ -65,6 +65,11 @@ public class JwtHelper {
 		return cookie;
 	}
 
+	public ResponseCookie deleteCookie() {
+		ResponseCookie cookie = ResponseCookie.from(cookieName, null).path("/ohsms").build();
+		return cookie;
+	}
+
 	public boolean validateJwtToken(String authToken) {
 		try {
 			Jwts.parser().setSigningKey(secretKey).parseClaimsJws(authToken);

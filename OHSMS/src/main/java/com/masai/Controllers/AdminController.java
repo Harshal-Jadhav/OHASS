@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,9 +23,11 @@ import com.masai.Models.Employee;
 import com.masai.Models.Engineer;
 import com.masai.Payload.Request.SignUpRequest;
 import com.masai.Services.AdminServices;
+import com.masai.Services.EmployeeServices;
+import com.masai.Services.EngineerServices;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+//import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
 //@ApiOperation(value = "ADMIN ACESS API's")
@@ -34,8 +37,14 @@ public class AdminController {
 	@Autowired
 	private AdminServices adminServices;
 
+	@Autowired
+	private EngineerServices engineerServices;
+
+	@Autowired
+	private EmployeeServices employeeServices;
+
 	// Endpoint to handle the creation of new Admin.
-	@PostMapping("/create")
+	@PostMapping("/create-admin")
 	// (http://localhost:8088/ohsms/admin/create)
 	@Operation(summary = "ADD NEW ADMIN TO DATABASE.", 
 	description = "SEND THE SIGNUP REQUEST TO ADD NEW ADMIN TO THE DATABASE. "
@@ -46,6 +55,20 @@ public class AdminController {
 			throws InvalidCredentialsException {
 		Admin admin = adminServices.registerNewAdmin(signUpRequest);
 		return new ResponseEntity<Admin>(admin, HttpStatus.CREATED);
+	}
+
+	@PostMapping("/create-engineer")
+	public ResponseEntity<Engineer> registerNewEngineer(SignUpRequest signUpRequest)
+			throws InvalidCredentialsException {
+		Engineer engineer = engineerServices.registerNewEngineer(signUpRequest);
+		return new ResponseEntity<Engineer>(engineer, HttpStatus.CREATED);
+	}
+
+	@PostMapping("/create-employee")
+	public ResponseEntity<Employee> registerNewEmployee(@RequestBody SignUpRequest signUpRequest)
+			throws InvalidCredentialsException {
+		Employee employee = employeeServices.registerNewEmployee(signUpRequest);
+		return new ResponseEntity<Employee>(employee, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/admins")
@@ -102,7 +125,7 @@ public class AdminController {
 		return new ResponseEntity<List<Complaint>>(complaints, HttpStatus.OK);
 	}
 
-	@PutMapping("/complaints/assign")
+	@PutMapping("/complaints/assign-complaint")
 	@Operation(summary = "ASSIGN A COMPLAINT TO AN ENGINEER",description = "THIS API WILL ASSIGN THE COMPLAINT WITH GIVEN COMPLAINT ID"
 			+ "TO AN ENGINEER WITH PROVIDED ENGINEER ID.")
 	public ResponseEntity<Complaint> assignComplaintToEnginner(@RequestParam Integer engId, @RequestParam String compId)

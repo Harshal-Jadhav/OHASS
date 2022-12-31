@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.masai.Enums.ComplaintStatus;
+import com.masai.Enums.Role;
 import com.masai.Exceptions.InvalidCredentialsException;
 import com.masai.Exceptions.InvalidInputException;
 import com.masai.Exceptions.RecordsNotFoundException;
@@ -55,7 +56,7 @@ public class EngineerServicesImpl implements EngineerServices {
 
 		Users user = mapper.map(signUpRequest, Users.class);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+		user.setRole(Role.ENGINEER);
 		Users savedUser = userRepo.save(user);
 
 		Engineer savedEngineer = engineerRepo.save(mapper.map(savedUser, Engineer.class));
@@ -70,6 +71,9 @@ public class EngineerServicesImpl implements EngineerServices {
 		String username = helper.getUserName(httpServletRequest);
 
 		Optional<Engineer> employee = engineerRepo.findByUsername(username);
+
+		if (!employee.isPresent())
+			throw new RecordsNotFoundException("Enginner not found.");
 
 		List<Complaint> newComplaints = employee.get().getComplaints().stream()
 				.filter(c -> c.getStatus().equals(ComplaintStatus.ASSIGNED)).collect(Collectors.toList());

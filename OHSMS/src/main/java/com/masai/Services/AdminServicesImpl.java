@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.masai.Enums.ComplaintStatus;
+import com.masai.Enums.Role;
 import com.masai.Exceptions.InvalidCredentialsException;
 import com.masai.Exceptions.InvalidInputException;
 import com.masai.Exceptions.RecordsNotFoundException;
@@ -57,7 +58,7 @@ public class AdminServicesImpl implements AdminServices {
 
 		Users user = mapper.map(signUpRequest, Users.class);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+		user.setRole(Role.ADMIN);
 		Users savedUser = userRepo.save(user);
 
 		Admin savedAdmin = adminRepo.save(mapper.map(savedUser, Admin.class));

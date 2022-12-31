@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.masai.Enums.Role;
 import com.masai.Exceptions.InvalidCredentialsException;
 import com.masai.Exceptions.RecordsNotFoundException;
 import com.masai.Models.Complaint;
@@ -56,7 +57,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
 		Users user = mapper.map(signUpRequest, Users.class);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+		user.setRole(Role.EMPLOYEE);
 		Users savedUser = userRepo.save(user);
 
 		Employee savedEmployee = employeeRepo.save(mapper.map(savedUser, Employee.class));
