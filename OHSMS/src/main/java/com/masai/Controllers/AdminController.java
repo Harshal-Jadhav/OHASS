@@ -46,8 +46,7 @@ public class AdminController {
 	// Endpoint to handle the creation of new Admin.
 	@PostMapping("/create-admin")
 	// (http://localhost:8088/ohsms/admin/create)
-	@Operation(summary = "ADD NEW ADMIN TO DATABASE.", 
-	description = "SEND THE SIGNUP REQUEST TO ADD NEW ADMIN TO THE DATABASE. "
+	@Operation(summary = "ADD NEW ADMIN TO DATABASE.", description = "SEND THE SIGNUP REQUEST TO ADD NEW ADMIN TO THE DATABASE. "
 			+ "THIS WILL RETURN A ERROR MESSAGE IF A USER IS ALREADY PRESENT WITH THE PROVIDED USERNAME. "
 			+ "TO AVOID PLEASE USE ----(\"CHECK IF USERNAME IS AVALIABLE\")----ENDPOINT FIRST. "
 			+ "Link-> (http://localhost:8088/ohsms/admin/create)")
@@ -58,6 +57,10 @@ public class AdminController {
 	}
 
 	@PostMapping("/create-engineer")
+	@Operation(summary = "ADD NEW ENGINEER TO DATABASE.", description = "SEND THE SIGNUP REQUEST TO ADD NEW ENGINEER TO THE DATABASE. "
+			+ "THIS WILL RETURN A ERROR MESSAGE IF A USER IS ALREADY PRESENT WITH THE PROVIDED USERNAME. "
+			+ "TO AVOID PLEASE USE ----(\"CHECK IF USERNAME IS AVALIABLE\")----ENDPOINT FIRST. "
+			+ "Link-> (http://localhost:8088/ohsms/admin/create)")
 	public ResponseEntity<Engineer> registerNewEngineer(SignUpRequest signUpRequest)
 			throws InvalidCredentialsException {
 		Engineer engineer = engineerServices.registerNewEngineer(signUpRequest);
@@ -65,6 +68,10 @@ public class AdminController {
 	}
 
 	@PostMapping("/create-employee")
+	@Operation(summary = "ADD NEW EMPLOYEE TO DATABASE.", description = "SEND THE SIGNUP REQUEST TO ADD NEW EMPLOYEE TO THE DATABASE. "
+			+ "THIS WILL RETURN A ERROR MESSAGE IF A USER IS ALREADY PRESENT WITH THE PROVIDED USERNAME. "
+			+ "TO AVOID PLEASE USE ----(\"CHECK IF USERNAME IS AVALIABLE\")----ENDPOINT FIRST. "
+			+ "Link-> (http://localhost:8088/ohsms/admin/create)")
 	public ResponseEntity<Employee> registerNewEmployee(@RequestBody SignUpRequest signUpRequest)
 			throws InvalidCredentialsException {
 		Employee employee = employeeServices.registerNewEmployee(signUpRequest);
@@ -120,6 +127,9 @@ public class AdminController {
 	}
 
 	@GetMapping("/complaints/unassigned")
+	@Operation(summary = "GET A LIST OF ALL UNASSIGNED COMPLAINTS", 
+	description ="THIS API WILL GIVE A LIST OF COMPLAINTS WITH STATUS UNASSIGNED. IF NO COMPLAINTS"
+			+ "ARE FOUND THEN IT WILL RETURN AN ERROR WITH MESSAGE NO COMPLAINTS FOUND.")
 	public ResponseEntity<List<Complaint>> getAllUnassignedComplaints() throws RecordsNotFoundException {
 		List<Complaint> complaints = adminServices.getAllUnAssignedComplaints();
 		return new ResponseEntity<List<Complaint>>(complaints, HttpStatus.OK);
