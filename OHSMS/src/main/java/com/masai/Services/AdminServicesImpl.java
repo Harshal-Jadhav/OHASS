@@ -103,7 +103,7 @@ public class AdminServicesImpl implements AdminServices {
 		List<Complaint> complaints = complaintRepo.findAll();
 
 		if (complaints.size() == 0)
-			throw new RecordsNotFoundException("No Employees found.");
+			throw new RecordsNotFoundException("No Engineers found.");
 
 		return complaints;
 	}
@@ -131,6 +131,7 @@ public class AdminServicesImpl implements AdminServices {
 			throw new InvalidInputException("Invalid complaint Id");
 
 		existingComplaint.get().setAssignedTo(existingEngineer.get());
+		existingComplaint.get().setStatus(ComplaintStatus.ASSIGNED);
 		Complaint updatedComplaint = complaintRepo.save(existingComplaint.get());
 
 		return updatedComplaint;

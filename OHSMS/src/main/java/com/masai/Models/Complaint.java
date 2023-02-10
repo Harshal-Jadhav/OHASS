@@ -1,6 +1,6 @@
 package com.masai.Models;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -8,9 +8,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.masai.Enums.ComplaintStatus;
 
 import lombok.AllArgsConstructor;
@@ -35,11 +36,13 @@ public class Complaint {
 
 	private String remarks = "No Remarks Added.";
 
-	@CreatedDate
-	private LocalDate raised_On;
+	@CreationTimestamp
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+	private LocalDateTime raised_On;
 
 	@UpdateTimestamp
-	private LocalDate last_Updated_On;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+	private LocalDateTime last_Updated_On;
 
 	@ManyToOne
 	private Employee raisedBy;
